@@ -60,8 +60,9 @@ class wcs_hide_cancel_settings {
                 'default'  => 'always',
                 'type'     => 'select',
                 'options'  => array(
-                    'always'        => _x( 'Always show', 'woocommerce-subs-cancel-button-options' ),
+                    'always_show'        => _x( "Always show", 'woocommerce-subs-cancel-button-options' ),
                     'sub_expiration'   => _x( "Hide if subscription has an 'End Date'", 'woocommerce-subs-cancel-button-options' ),
+                    'always_hide' => _x( "Always hide", 'woocommerce-subs-cancel-button-options' )
                 ),
                 'desc_tip' => true,
             ),
@@ -78,7 +79,7 @@ wcs_hide_cancel_settings::init();
  * What to do based on the selected option from above
  */
 
-if ( 'always' == get_option( wcs_hide_cancel_settings::$option_prefix ) ) { 
+if ( 'always_show' == get_option( wcs_hide_cancel_settings::$option_prefix ) ) { 
 }
 elseif ( 'sub_expiration' == get_option( wcs_hide_cancel_settings::$option_prefix ) ) {
 
@@ -100,5 +101,21 @@ elseif ( 'sub_expiration' == get_option( wcs_hide_cancel_settings::$option_prefi
     }
     add_filter( 'wcs_view_subscription_actions', 'eg_remove_my_subscriptions_button', 100, 2 );
     
+}
+elseif ( 'always_hide' == get_option( wcs_hide_cancel_settings::$option_prefix ) ) {
+    function eg_remove_my_subscriptions_cancel_button( $actions, $subscription ) {
+        foreach ( $actions as $action_key => $action ) {
+            switch ( $action_key ) {
+    			case 'cancel':
+                    unset( $actions[ $action_key ] );
+                    break;
+                default: 
+                    error_log( '-- $action = ' . print_r( $action, true ) );
+                    break;
+            }
+        }
+        return $actions;
+    }
+    add_filter( 'wcs_view_subscription_actions', 'eg_remove_my_subscriptions_cancel_button', 100, 2 );
 }
 else {}
